@@ -1,58 +1,359 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<style>
+div {width:24px; height:24px; position:absolute; border:1px solid black;}
+.normal {background:white;}
+.active {background:red;}
+.fix {background:#333;}
+#txt1 {position:absolute; left:550px;}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>俄罗斯方块</title>
+<script type="text/javascript">
+window.onload=function ()
+{
+        var rows=20;
+        var cols=10;
+        var i=0;
+        var j=0;
+        var k=0;
+        var arr=[];
+        var oTxt=document.getElementById('txt1');
+        var aDiv=document.body.getElementsByTagName('div');
+        
+        oTxt.value=0;
+        
+        for(i=0;i<rows;i++)
+        {
+                arr[i]=[];
+                
+                for(j=0;j<cols;j++)
+                {
+                        arr[i][j]=document.createElement('div');
+                        
+                        arr[i][j].style.top=50+i*28+'px';
+                        arr[i][j].style.left=500+j*28+'px';
+                        
+                        arr[i][j].className='normal';
+                        
+                        document.body.appendChild(arr[i][j]);
+                }
+        }
+        
+        var nowBlock={type: 0, cells: []};
+        
+        function createNewBlock()
+        {
+                var type=Math.ceil(Math.random()*5);
+                var i=0;
+                
+                nowBlock.type=type;
+                
+                switch(type)
+                {
+                        case 1:
+                                nowBlock.cells=[[0, cols/2-2], [0, cols/2-1], [0, cols/2], [0, cols/2+1]];
+                                break;
+                        case 2:
+                                nowBlock.cells=[[0, cols/2-2], [0, cols/2-1], [0, cols/2], [1, cols/2-2]];
+                                break;
+                        case 3:
+                                nowBlock.cells=[[1, cols/2-1], [1, cols/2], [1, cols/2+1], [0, cols/2]];
+                                break;
+                        case 4:
+                                nowBlock.cells=[[0, cols/2-1], [0, cols/2], [1, cols/2-1], [1, cols/2]];
+                                break;
+                        case 5:
+                                nowBlock.cells=[[0, cols/2-1], [0, cols/2], [1, cols/2], [1, cols/2+1]];
+                                break;
+                }
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]].className=='fix')
+                        {
+                                finish();
+                                clearInterval(timer);
+                                document.onkeydown=null;
+                                return;
+                        }
+                }
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]].className='active';
+                }
+        }
+        
+        function finish()
+        {
+                alert('哈哈，你输了，最终得分是：'+oTxt.value+'行，点击确定，重开一局吧！');
+                window.location.reload();
+        }
+        
+        function findFullLine()
+        {
+                var aResult=[];
+                for(i=0;i<rows;i++)
+                {
+                        var count=0;
+                        for(j=0;j<cols;j++)
+                        {
+                                if(arr[i][j].className=='fix')
+                                {
+                                        count++;
+                                }
+                        }
+                        if(count==cols)
+                        {
+                                aResult.push(i);
+                        }
+                }
+                
+                return aResult;
+        }
+        
+        function clearAllFullLine(lines)
+        {
+                for(i=0;i<lines.length;i++)
+                {
+                        for(j=lines[i];j>0;j--)
+                        {
+                                for(k=0;k<cols;k++)
+                                {
+                                        arr[j][k].className=arr[j-1][k].className;
+                                }
+                        }
+                }
+        }
+        
+        function moveDown()
+        {
+                var i=0;
+                
+                //检测是否碰到底边
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(nowBlock.cells[i][0]+1==rows || arr[nowBlock.cells[i][0]+1][nowBlock.cells[i][1]].className=='fix')
+                        {
+                                for(i=0;i<nowBlock.cells.length;i++)
+                                {
+                                        arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]].className='fix';
+                                }
+                                createNewBlock();
+                                
+                                var fullLine=findFullLine();
+                                if(fullLine.length)
+                                {
+                                        clearAllFullLine(fullLine);
+                                        oTxt.value=parseInt(oTxt.value)+fullLine.length;
+                                }
+                        }
+                }
+                
+                clear();
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        nowBlock.cells[i][0]++;
+                }
+                refresh();
+        }
+        
+        function clear()
+        {
+                var i=0;
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]].className='normal';
+                }
+        }
+        
+        function refresh()
+        {
+                var i=0;
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        
+                        arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]].className='active';
+                }
+        }
+        
+        function findMax(arr)
+        {
+                var maxX=0;
+                var maxY=0;
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(maxX<nowBlock.cells[i][0])
+                        {
+                                maxX=nowBlock.cells[i][0];
+                        }
+                        if(maxY<nowBlock.cells[i][1])
+                        {
+                                maxY=nowBlock.cells[i][1];
+                        }
+                }
+                
+                return {x: maxX, y: maxY};
+        }
+        
+        function findMin(arr)
+        {
+                var minX=9999;
+                var minY=9999;
+                
+                for(i=0;i<arr.length;i++)
+                {
+                        if(minX>arr[i][0])
+                        {
+                                minX=arr[i][0];
+                        }
+                        if(minY>arr[i][1])
+                        {
+                                minY=arr[i][1];
+                        }
+                }
+                
+                return {x: minX, y: minY};
+        }
+        
+        function ration()
+        {
+                var tmp=0;
+                var oMin=findMin(nowBlock.cells);
+                var aNew=[];
+                var aNew2=[];
+                var aTmp=[];
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        aNew[i]=[nowBlock.cells[i][0]-oMin.x, nowBlock.cells[i][1]-oMin.y];
+                        aNew2[i]=[4-aNew[i][1], aNew[i][0]];
+                        //alert(aNew[i]+'->'+aNew2[i]);
+                        /*tmp=aNew[i][0];
+                        aNew[i][0]=aNew[i][1];
+                        aNew[i][1]=tmp;*/
+                }
+                
+                var oMinTmp=findMin(aNew2);
+                
+                for(i=0;i<aNew2.length;i++)
+                {
+                        aNew2[i][0]-=oMinTmp.x;
+                        aNew2[i][1]-=oMinTmp.y;
+                        
+                        //alert(aNew2[i]);
+                }
+                
+                aNew=aNew2;
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        aTmp[i]=[oMin.x+aNew[i][0], oMin.y+aNew[i][1]];
+                }
+                
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(aTmp[i][0]<0 || aTmp[i][0]>=rows || aTmp[i][1]<0 || aTmp[i][1]>=cols || arr[aTmp[i][0]][aTmp[i][1]].className=='fix')
+                        {
+                                return;
+                        }
+                }
+                
+                for(i=0;i<aTmp.length;i++)
+                {
+                        nowBlock.cells[i]=aTmp[i];
+                }
+        }
+        
+        Array.prototype.dup=function (arr)
+        {
+                return [].concar(arr);
+        };
+        
+        function findLeftColl()
+        {
+                var i=0;
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(nowBlock.cells[i][1]<=0 || arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]-1].className=='fix')
+                        {
+                                return false;
+                        }
+                }
+                
+                return true;
+        }
+        
+        function findRightColl()
+        {
+                var i=0;
+                for(i=0;i<nowBlock.cells.length;i++)
+                {
+                        if(nowBlock.cells[i][1]>=cols-1 || arr[nowBlock.cells[i][0]][nowBlock.cells[i][1]+1].className=='fix')
+                        {
+                                return false;
+                        }
+                }
+                
+                return true;
+        }
+        
+        document.onkeydown=function (ev)
+        {
+                var oEvent=ev||event;
+                
+                //左 - 65
+                //右 - 68
+                //上 - 87
+                //下 - 83
+                
+                switch(oEvent.keyCode)
+                {
+                        case 65:
+                                if(findLeftColl())
+                                {
+                                        clear();
+                                        for(i=0;i<nowBlock.cells.length;i++)
+                                        {
+                                                nowBlock.cells[i][1]--;
+                                        }
+                                        refresh();
+                                }
+                                break;
+                        case 68:
+                                if(findRightColl())
+                                {
+                                        clear();
+                                        for(i=0;i<nowBlock.cells.length;i++)
+                                        {
+                                                nowBlock.cells[i][1]++;
+                                        }
+                                        refresh();
+                                }
+                                break;
+                        case 83:
+                                moveDown();
+                                break;
+                        case 87:
+                                clear();
+                                ration();
+                                refresh();
+                                break;
+                }
+        };
+        
+        createNewBlock();
+        
+        var timer=setInterval(moveDown, 1000);
+};
+</script>
+</head>
 
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
-
-    <title>Iceswordtop.GitHub.io by IceSwordTOP</title>
-  </head>
-
-  <body>
-
-    <header>
-      <div class="container">
-        <h1>Iceswordtop.GitHub.io</h1>
-        <h2></h2>
-
-        <section id="downloads">
-          <a href="https://github.com/IceSwordTOP" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
-        </section>
-      </div>
-    </header>
-
-    <div class="container">
-      <section id="main_content">
-        <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
-
-<h3>
-<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
-
-<h3>
-<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating pages manually</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/#mentioning-users-and-teams" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
-      </section>
-    </div>
-
-    
-  </body>
+<body>
+<input id="txt1" type="text" readonly="1" />
+</body>
 </html>
