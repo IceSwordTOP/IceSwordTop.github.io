@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>Document</title>
+	<style>
+
+	* {
+
+		margin: 0;
+		padding: 0;
+
+	}	
+
+	#gourd {
+
+		width: 100px;
+		height: 100px;
+		position: absolute;
+		top: 100px;
+		left: 500px;
+		cursor: pointer;
+
+	}
+
+	img {
+
+		position: absolute;
+
+	}
+
+	.img2 {
+
+		left: 50px;
+
+	}
+
+	.img3 {
+
+		position: absolute;
+		left: 40px;
+		top: 28px;
+		width: 20px;
+		height: 20px;
+		border-radius: 20px;
+		visibility: hidden;
+
+	}
+
+	</style>
+	<script>
+
+	window.onload = function() {
+
+		var 
+			obj = document.getElementById( 'gourd' ),
+			arr = [],
+			timer1 = null,
+			num = 0;
+
+		obj.onclick = function() {
+
+			
+			var 
+				_this = this, 
+				l = this.offsetLeft, 
+				t = this.offsetTop;
+			
+			this.style.transform = 'scale( 2 )'
+			aaa( timer1, _this, arr, num, l );		
+
+		};
+
+	};
+
+	function aaa( timer1, _this, arr, num, l, callback ) {
+
+		for( var i = 20; i > 0; i -= 2 ) {
+
+				arr.push( i, -i );
+
+		}
+
+		arr.push( 0 );
+
+		clearInterval( timer1 );
+
+		timer1 = setInterval( function() {
+
+			_this.style.left = l + arr[ num ] + 'px';
+
+			num ++;
+
+			if( num === arr.length ) {
+
+				clearInterval( timer1 );
+
+				// 自有落体
+				bbb( _this );
+
+			}
+
+		}, 50 );
+
+	};
+
+	function bbb( _this, callback ) {
+
+		var iSpeed = 0;
+
+		var timer2 = null;
+
+		var temp = 0;
+
+		var arr = [];
+		
+		timer2 = setInterval( function() {
+
+			iSpeed += 3;
+			var t = _this.offsetTop + iSpeed;
+
+			if( t >= 500 - 100 ) {
+				t = 400;
+				iSpeed *= -1;
+				iSpeed *= 0.75;				
+
+			}
+
+			if( Math.abs( 500 - ( _this.offsetTop + 100 ) ) == 0 ) {
+				
+				if( Math.abs( 500 - ( _this.offsetTop + 100 ) ) == temp ) {
+
+					arr.push( 0 );
+
+				}
+
+			}
+
+			temp = Math.abs( 500 - ( _this.offsetTop + 100 ) );
+
+			_this.style.top = t + 'px';
+
+			if( arr.length === 3 ) {
+
+				clearInterval( timer2 );
+
+				ccc();
+
+			}
+
+			
+
+		}, 30 );
+
+	};
+
+	function ccc( img ) {
+
+		var img = document.getElementsByTagName( 'img' );
+		
+		img[1].style.left = '-40px';
+		img[2].style.left = '90px';
+		img[1].style.transform = 'rotate( -60deg)';
+		img[2].style.transform = 'rotate( 60deg )';
+		img[0].style.visibility = 'visible';
+
+		var iSpeed = 0,
+			timer = null,
+			num = 0;
+
+		clearInterval( timer );
+
+		var timer = setInterval( function() {
+
+			var t = img[0].offsetTop;
+
+			iSpeed -= 1;
+			iSpeed *= 0.95;
+
+			img[0].style.top = t + iSpeed + 'px';
+			
+			console.log( t );
+			if( t <= -100 ) {
+				
+				img[0].style.top = '-100px'
+				
+				clearInterval( timer );
+
+				img[0].style.transform = 'scale( 6 )';
+
+			}
+
+		}, 50 );
+
+		
+
+
+	};
+
+	</script>
+</head>
+<body>
+
+	<div id="gourd">
+		<img class="img3" src="3.png" alt="图三">
+		<img class="img1" src="1.png" alt="图1">
+		<img class="img2" src="2.png" alt="图2">
+	</div>
+
+</body>
+</html>
